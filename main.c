@@ -12,9 +12,10 @@
 /*
  * Low speed SPI configuration (140.625kHz, CPHA=0, CPOL=0, MSb first).
  */
+ //gpiob ike çalışıyomuş ne iş ?
 static const SPIConfig ls_spicfg = {
   NULL,
-  GPIOB,
+  GPIOA,
   12,
   SPI_CR1_BR_2 | SPI_CR1_BR_1,
   SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0
@@ -32,6 +33,8 @@ int main(void)
 	
 	uint8_t packet[3];
 	uint8_t sender, data, calc_parity, last_data;
+	palClearPad(GPIOF, 0);
+	palSetPadMode(GPIOF, 0, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOA, GPIOA_USART_TX, PAL_MODE_ALTERNATE(1)); // used function : USART1_TX
 	palSetPadMode(GPIOA, GPIOA_USART_RX, PAL_MODE_ALTERNATE(1)); // used function : USART1_RX
 	palSetPadMode(GPIOA, GPIOA_PIN4, PAL_MODE_ALTERNATE(0) | PAL_STM32_OSPEED_HIGHEST); //spi nss
@@ -73,6 +76,8 @@ int main(void)
 		
 		if(msgArr[data] > 5)
 		{
+			
+			palSetPad(GPIOF, 0);
 			last_data = data;
 			txbuf[0] = data;
 			txbuf[30] = sender;
@@ -87,6 +92,8 @@ int main(void)
 			msgArr[3] = 0;
 			msgArr[4] = 0;
 			msgArr[5] = 0;
+			
+			palClearPad(GPIOF, 0);
 		}
 		
 		chThdSleepMilliseconds(10);
